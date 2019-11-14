@@ -1,26 +1,80 @@
-<link rel="stylesheet" href="css/bootstrap.min.css">
-<link rel="stylesheet" href="css/bootstrap.min.cards.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+<!DOCTYPE html>
 
-<script src="js/jquery.min.js"></script>
+<head>
+    <title></title>
+    <meta charset="utf-8">
+</head>
 
-<script src="js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<body>
+    <script>
+        function indexedDB_addinfo(data) {
+            let request = window.indexedDB.open("animeimages", 1);
+            request.onupgradeneeded = (ev) => {
+                let db = ev.target.result;
+                if (!db.objectStoreNames.contains("images")) {
+                    let objectStore = db.createObjectStore("images", {
+                        keyPath: "image_name"
+                    });
+                }
+            }
 
-<meta charset="utf-8">
+            request.onsuccess = (ev) => {
+                let db = ev.target.result;
+                let transaction = db.transaction(["images"], 'readwrite');
 
-<div class="card" style="width: 20rem;">
-    <p class="text-center"><img class="card-img-top" src="caomei.gif" alt="ERROR LOADING"></p>
-    <div class="card-body">
-        <h4 class="card-title">致亲爱的muamua~~:</h4>
-        <p class="card-text">
-            宝贝儿们觉得是h图的跳过就好， 不是h图的点一下删除按钮，mnuamua～～
-            <footer>
-                <a href="javascript:void;" class="btn btn-primary pull-right close-icon">点我开始看h图哦</a>
-            </footer>
-        </p>
-    </div>
-</div>
-<script>
-    $('.close-icon').on('click', function() {
-        $(this).closest('.card').fadeOut();
-    })
-</script>
+                transaction.oncomplete = function(event) {
+                    console.log('事务完成');
+                };
+                transaction.onerror = function(event) {
+                    console.log('事务错误信息: ' + transaction.error);
+                };
+
+                let objectStore = transaction.objectStore("images");
+                let objectStoreRequest = objectStore.add(data);
+
+                objectStoreRequest.onsuccess = function(event) {
+                    console.log('数据添加成功');
+                };
+            }
+        }
+
+        function fetchStoreByCursor() {
+
+            let request = window.indexedDB.open("animeimages", 1);
+            request.onupgradeneeded = (ev) => {
+                let db = ev.target.result;
+                if (!db.objectStoreNames.contains("images")) {
+                    let objectStore = db.createObjectStore("images", {
+                        keyPath: "image_name"
+                    });
+                }
+            }
+
+            request.onsuccess = (ev) => {
+                let db = ev.target.result;
+                var transaction = db.transaction("images");
+
+                transaction.oncomplete = function(event) {
+                    console.log('事务完成');
+                }
+                transaction.onerror = function(event) {
+                    console.log('事务错误信息: ' + transaction.error);
+                }
+
+                var objectStore = transaction.objectStore("images");
+                var request = objectStore.openCursor();
+                request.onsuccess = function(e) {
+                    var cursor = e.target.result;
+                    if (cursor) {
+                        var current = cursor.value;
+                        console.log(current.image_name);
+                        cursor.continue();
+                    }
+                }
+            }
+        }
+        fetchStoreByCursor();
+    </script>
+</body>
+
+</html>

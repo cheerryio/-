@@ -42,9 +42,6 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
                 if(!$ilock->create_lock()) die("cant create lock");
 
                 //已上锁，进行上锁后的操作
-                if(!($processid=$file_handler->load_process())){
-                    die("cant get process file ...");
-                }
                 $image_names=$mysqlopt->get_two_images();
                 echo json_encode($image_names);
 
@@ -71,9 +68,9 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
             case 3:
                 $mysqlopt->connect();
 
-                if(isset($data["last_image_name"])){
-                    $last_image_name=$data["last_image_name"];
-                    $yellow=$mysqlopt->get_yellow($last_image_name);
+                if(isset($data["image_name"])){
+                    $image_name=$data["image_name"];
+                    $yellow=$mysqlopt->get_yellow($image_name);
                     echo $yellow;
                 }
 
@@ -94,6 +91,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
             case 5:
             if(isset($data["image_name"])){
                 $image_name=$data["image_name"];
+                echo $image_name;
                 $mysqlopt->connect();
                 $mysqlopt->update_yellow($image_name,1);
                 $mysqlopt->close();

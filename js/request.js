@@ -13,11 +13,19 @@
 
 //定义ajax请求基础，所有请求都用它
 
-function ajax_request(signal, callback) {
-    var image_name;
+function ajax_request(signal, callback, slide) {
+    var image_name = "aaa";
     //signal=2，点击next，传下一张图片的image_name
-    image_name = $("div.active p img").attr("src");
-    console.log(image_name);
+
+    //如果有slide值并且值为prev，表示向前翻，要得到前一张图片的image_name
+    //               值为next，表示向后翻，要得到后一张图片的image_name
+    if (slide) {
+        if (slide == "prev") image_name = $("div.active").prev().find("p").find("img").attr("image_name");
+        else if (slide == "next") image_name = $("div.active").next().find("p").find("img").attr("image_name");
+        else $("#change_info").text("不要篡改数据");
+    } else image_name = $("div.active p img").attr("image_name");
+
+    image_name = image_name ? image_name.replace("\n", "") : null;
 
     var data = {
         "signal": signal,
@@ -40,46 +48,6 @@ function ajax_request(signal, callback) {
     })
 }
 
-function stop_image1_prev() {
-    $('#myCarousel').on("slide.bs.carousel", function(event) {
-        var $hoder = $("#myCarousel").find('.item'),
-            $items = $(event.relatedTarget);
-        //getIndex就是轮播到当前位置的索引
-        var getIndex = $hoder.index($items);
-        if (getIndex == 0) $("#previous").attr("data-slide", null);
-        else $("#previous").attr("data-slide", "prev");
-    })
-}
-
-function new_carousel_inner(image_name) {
-    var div1 = $("<div class='item'></div>");
-    var new_p = $("<p class='text-center'></p>");
-    var image_path = "images/" + image_name;
-    var new_img = $("<img alt=...>").attr({ src: "caomei.gif" }).attr({ image_name: image_name });
-    new_p.append(new_img);
-    div1.append(new_p);
-    $(".carousel-inner").append(div1);
-    new_img.attr("src", image_path);
-    return;
-}
-
-function role_carousel_inner(current, total, image_name) {
-
-    //判断current是否1-3且为整数，否则错误输入不处理
-    if (!(current < 3 && current > 0 && Math.floor(current) == current && Math.floor(total) == total)) return false;
-
-    //cover值为覆盖src的位置
-    var cover;
-    if (current + 1 == total) cover == total;
-    else cover = (current + 1) % total;
-    print(cover);
-
-    $("#image" + cover).attr("src", "images/" + image_name);
-    $("#image" + cover).attr("image_name", image_name);
-    return;
-
-}
-
 //定义全局变量window.current,window.total
 /**
  * 1. 如果window.current值为<total，点next ajax请求请求的不是图片的url，是下一张图片h不h,点previous不希望跳到最后一张（或者是第三张图片）,即什么都不发生
@@ -90,6 +58,7 @@ function role_carousel_inner(current, total, image_name) {
 window.onload = function() {
     stop_image1_prev();
     $("#hideshow").css("display", "None");
+    $("#change_info").text("");
     //初始化全局变量
     window.total = 2;
     window.current = 1;
@@ -101,12 +70,17 @@ window.onload = function() {
         $("#image2").attr("src", "images/" + response[1]);
         $("#image1").attr("image_name", response[0]);
         $("#image2").attr("image_name", response[1]);
+        indexedDB_addinfo({ "image_name": response[0] });
+        indexedDB_addinfo({ "image_name": response[1] });
     })
 }
 
 //signal=2,点击id为next的<a>标签请求翻到下一页图片时出发，请求一张图片的url
 //具体实现时，先加入一个新的框，src为loading提示图片，ajax请求有返回值时，替换src
 $("#next").click(function(e) {
+
+    //在最开始就清空提示行哦，，反正一般有一个操作就应该进行一次清空
+    $("#change_info").text("");
 
     if (window.current > window.total) window.current = window.total; //卑微的防止出错
 
@@ -121,10 +95,10 @@ $("#next").click(function(e) {
              *      Option2:类似循环队列，一共只有二个图片轮播框，循环
              */
             new_carousel_inner(image_name);
-            $("#deletereserve").text("不够h"); //ajax请求了下一张图片后更新button值
+            $("#deletereserve").text("不h"); //ajax请求了下一张图片后更新button值
             $("#deletereserve").attr("role", "delete");
-            $("#change_info").text("");
 
+            indexedDB_addinfo({ "image_name": image_name });
             window.total = window.total + 1; //全局变量晋升
             window.current = window.current + 1;
         })
@@ -132,15 +106,13 @@ $("#next").click(function(e) {
         ajax_request(3, function(response) {
             //有请求返回值确定展示 删除 或 取消删除按钮
             if (response == 1) {
-                $("#deletereserve").text("不够h");
+                $("#deletereserve").text("不h");
                 $("#deletereserve").attr("role", "delete");
-                $("#change_info").text("");
             } else {
                 $("#deletereserve").text("挺h的");
                 $("#deletereserve").attr("role", "reserve");
-                $("#change_info").text("");
             }
-        })
+        }, slide = "next")
         window.current = window.current + 1;
     }
 })
@@ -150,6 +122,8 @@ $("#next").click(function(e) {
 //需要向后端额外传入参数前一张图片的名字(这个在ajax中直接实现了，四个请求都传）
 $("#previous").click(function() {
 
+    $("#change_info").text("");
+
     if (window.current > window.total) window.current = window.total; //卑微防出错
 
     //如果是第一张图片，什么都不做
@@ -158,36 +132,16 @@ $("#previous").click(function() {
         ajax_request(3, function(response) {
             //有请求返回值确定展示 删除 或 取消删除按钮
             if (response == 1) {
-                $("#deletereserve").text("不够h");
+                $("#deletereserve").text("不h");
                 $("#deletereserve").attr("role", "delete");
             } else {
                 $("#deletereserve").text("挺h的");
                 $("#deletereserve").attr("role", "reserve");
             }
-        })
+        }, slide = "prev")
         window.current = window.current - 1; //在不是第一张图片的情况下往回翻，current数减一
     }
 })
 
 //signal=4,点击删除按钮，发出将此图片yellow值1改为0的请求，并写processed值为1
 //signal=5则反之
-//前端会弹出删除成功的标识，按钮删除字样将变成取消删除
-$("#deletereserve").click(function() {
-    if ($("#deletereserve").attr("role") == "delete") {
-        ajax_request(4, function(response) {
-            //发送四将黄改为不黄，增加提示信息"更新图片性质 --不黄"
-            $("#deletereserve").text("挺h的");
-            $("#deletereserve").attr("role", "reserve");
-            $("#change_info").text("成功更新图片性质 --不黄");
-        })
-    } else if ($("#deletereserve").attr("role") == "reserve") {
-        ajax_request(5, function(response) {
-            $("#deletereserve").text("不h");
-            $("#deletereserve").attr("role", "delete");
-            $("#change_info").text("成功更新图片性质 --黄");
-        })
-    } else {
-        //当用户乱改button组件的role值情况
-        $("#change_info").text("请勿胡乱修改页面元素");
-    }
-})

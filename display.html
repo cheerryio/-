@@ -30,14 +30,15 @@
 
 <body>
 
-    <div class="card text-center" style="width: 20rem;height:15rem;">
+    <div class="card text-center" style="width: 25rem;height:15rem;">
         <p class="text-center"><img class="card-img-top" src="caomei.gif" alt="ERROR LOADING"></p>
         <div class="card-body">
             <h4 class="card-title">致亲爱的muamua~~:</h4>
             <p class="card-text">
-                宝贝儿们觉得是h图的跳过就好， 不是h图的点一下删除按钮，mnuamua～～
+                宝贝儿们觉得是h图的跳过就好， 不是h图的点一下删除按钮，muamua～～
                 <footer>
                     <a href="javascript:void;" class="btn btn-primary pull-right close-icon">点我开始看h图哦</a>
+                    <a href="javascript:void;" class="btn btn-primary pull-left close-icon">加载以前看过的h图</a>
                 </footer>
             </p>
         </div>
@@ -71,10 +72,10 @@
                 <span class="sr-only">Next</span> </a>
             <!--end carousel-->
         </div>
-        <button type="button" class="btn-primary btn-lg" id="deletereserve" role="delete" style="display:inline;" ;>不h</button>
+        <button type="button" class="btn btn-primary btn-lg pull-left" id="deletereserve" role="delete" style="display:inline;">不h</button>
+        <button type="button" class="btn btn-primary btn-lg pull-right" id="loadprevious" style="display:inline;">加载看过所有图片</button>
         <p id="change_info" style="display: inline;font-size:20px;"></p>
     </div>
-    <script type="text/javascript" src="js/request.js"></script>
     <script type="text/javascript">
         $("#myCarousel").carousel("pause");
         $('.close-icon').on('click', function() {
@@ -82,6 +83,8 @@
             $('#hideshow').css('display', 'block');
         })
     </script>
+    <script type="text/javascript" src="js/issues.js"></script>
+    <script type="text/javascript" src="js/request.js"></script>
 </body>
 
 </html>
