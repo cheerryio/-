@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en-US">
+
+<head>
+    <meta charset="utf-8">
+    <title>Happy h Pic</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.cards.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+    <script src="js/jquery.min.js "></script>
+    <script src="js/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="js/bootstrap.min.js "></script>
+    <style>
+        .card {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            background-color: #aaaaaa;
+        }
+        
+        body {
+            background-color: #999999;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card text-center" style="width: 20rem;height:15rem;">
+        <p class="text-center"><img class="card-img-top" src="caomei.gif" alt="ERROR LOADING"></p>
+        <div class="card-body">
+            <h4 class="card-title">致亲爱的muamua~~:</h4>
+            <p class="card-text">
+                宝贝儿们觉得是h图的跳过就好， 不是h图的点一下删除按钮，mnuamua～～
+                <footer>
+                    <a href="javascript:void;" class="btn btn-primary pull-right close-icon">点我开始看h图哦</a>
+                </footer>
+            </p>
+        </div>
+    </div>
+    <div id="hideshow">
+        <!--begin Bootstrap Carousel-->
+        <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="false">
+            <!-- Slide Indicators -->
+            <ol class="carousel-indicators">
+            </ol>
+            <!-- Wrapper for slides -->
+            <div class="carousel-inner" role="listbox">
+                <div class="item active">
+                    <p class="text-center"><img id="image1" cover-order="1" src="caomei.gif" alt="ERROR LOADING"></p>
+                    <div class="carousel-caption">
+                    </div>
+                </div>
+                <div class="item">
+                    <p class="text-center"><img id="image2" cover-order="2" src="caomei.gif" alt="ERROR LOADING"></p>
+                    <div class="carousel-caption">
+                    </div>
+                </div>
+            </div>
+            <!-- Left and right controls -->
+            <a class="left carousel-control" href="#myCarousel" id="previous" role="button">
+                <!--由于侦测目前是否处于image1的函数只有在出发slide时才能检测，最开始设定这个为0就好啦 -->
+                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span> </a>
+            <a class="right carousel-control" href="#myCarousel" id="next" role="button" data-slide="next">
+                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                <span class="sr-only">Next</span> </a>
+            <!--end carousel-->
+        </div>
+        <button type="button" class="btn-primary btn-lg" id="deletereserve" role="delete" style="display:inline;" ;>不h</button>
+        <p id="change_info" style="display: inline;font-size:20px;"></p>
+    </div>
+    <script type="text/javascript" src="js/request.js"></script>
+    <script type="text/javascript">
+        $("#myCarousel").carousel("pause");
+        $('.close-icon').on('click', function() {
+            $(this).closest('.card').fadeOut();
+            $('#hideshow').css('display', 'block');
+        })
+    </script>
+</body>
+
+</html>
