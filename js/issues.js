@@ -57,65 +57,77 @@ function indexedDB_addinfo(data) {
         let transaction = db.transaction(["images"], 'readwrite');
 
         transaction.oncomplete = function(event) {
-            console.log('事务完成');
+            console.log("addinfo ok");
         };
         transaction.onerror = function(event) {
-            console.log('事务错误信息: ' + transaction.error);
+            console.log("ERROR:" + transaction.error);
         };
 
         let objectStore = transaction.objectStore("images");
         let objectStoreRequest = objectStore.add(data);
 
-        objectStoreRequest.onsuccess = function(event) {
-            console.log('数据添加成功');
-        };
+        objectStoreRequest.onsuccess = function(event) {};
     }
 }
 
 function indexedDB_getall() {
+    return new Promise((resolve, reject) => {
 
-    var image_names = new Array();
+        var image_names = new Array();
 
-    let request = window.indexedDB.open("animeimages", 1);
-    request.onupgradeneeded = (ev) => {
-        let db = ev.target.result;
-        if (!db.objectStoreNames.contains("images")) {
-            let objectStore = db.createObjectStore("images", {
-                keyPath: "image_name"
-            });
-        }
-    }
-
-    request.onsuccess = (ev) => {
-        let db = ev.target.result;
-        var transaction = db.transaction("images");
-
-        transaction.oncomplete = function(event) {
-            console.log('事务完成');
-        }
-        transaction.onerror = function(event) {
-            console.log('事务错误信息: ' + transaction.error);
-        }
-
-        var objectStore = transaction.objectStore("images");
-        var request = objectStore.openCursor();
-        request.onsuccess = function(e) {
-            var cursor = e.target.result;
-            if (cursor) {
-                var current = cursor.value;
-                image_names.push(current.image_name);
-                cursor.continue();
+        let request = window.indexedDB.open("animeimages", 1);
+        request.onupgradeneeded = (ev) => {
+            let db = ev.target.result;
+            if (!db.objectStoreNames.contains("images")) {
+                let objectStore = db.createObjectStore("images", {
+                    keyPath: "image_name"
+                });
             }
         }
-    }
+
+        request.onsuccess = (ev) => {
+            var image_names = new Array();
+            let db = ev.target.result;
+            var transaction = db.transaction("images");
+
+            transaction.oncomplete = function(event) {
+                console.log("get transaction complete");
+                //cursor遍历数据库结束后出发此事件，在此对image_names数据（保存了以前看过的所有的images图片进行操作)
+                console.log(image_names);
+                resolve(image_names);
+            }
+            transaction.onerror = function(event) {
+                console.log("ERROR:" + transaction.error);
+            }
+
+            var objectStore = transaction.objectStore("images");
+            var cursor_request = objectStore.openCursor();
+            cursor_request.onsuccess = function(e) {
+                var cursor = e.target.result;
+                if (cursor) {
+                    var current = cursor.value;
+                    image_names.push(current.image_name);
+                    cursor.continue();
+                }
+            }
+        }
+    })
 }
 
 //当点下按钮请求加载indexedDB存储的以前看过的所有图片时，直接前端操作不用涉及到后端，
 //把url构造成 images/+image_name 做成轮播框加到当前轮播后面即可。(是不是要设计一个按钮直接跳转到最后一张图片以及最前面一张图片呢？)
 function load_previous_image() {
+    var image_name;
     var image_names = new Array();
-    image_names = indexedDB_getall();
-    console.log(image_names);
+    indexedDB_getall().then(function(image_names) {
+        for (var i = 0; i < image_names.length; i++) {
+            image_name = image_names[i];
+            new_carousel_inner(image_name); //新增加一群轮播框存储图片
+        }
+
+        window.current = window.current; //current值不变，total要加
+        window.total = window.total + image_names.length;
+    })
 }
 
 //前端会弹出删除成功的标识，按钮删除字样将变成取消删除
