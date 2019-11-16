@@ -33,7 +33,7 @@ function role_carousel_inner(current, total, image_name) {
     else cover = (current + 1) % total;
     print(cover);
 
-    $("#image" + cover).attr("src", "images/" + image_name);
+    $("#image" + cover).attr("src", window.images_dir + image_name);
     $("#image" + cover).attr("image_name", image_name);
     return;
 

@@ -13,6 +13,9 @@
 
 //定义ajax请求基础，所有请求都用它
 
+
+
+
 function ajax_request(signal, callback, slide) {
     var image_name = "aaa";
     //signal=2，点击next，传下一张图片的image_name
@@ -62,12 +65,13 @@ window.onload = function() {
     //初始化全局变量
     window.total = 2;
     window.current = 1;
+    window.images_dir = "crawler/results/images/";
     ajax_request(1, function(response) {
         //返回response直接是一个数组，用[0],[1]得到值
         //将返回的二张图片的url分配给二个播放器
         response = JSON.parse(response);
-        $("#image1").attr("src", "images/" + response[0]);
-        $("#image2").attr("src", "images/" + response[1]);
+        $("#image1").attr("src", window.images_dir + response[0]);
+        $("#image2").attr("src", window.images_dir + response[1]);
         $("#image1").attr("image_name", response[0]);
         $("#image2").attr("image_name", response[1]);
         indexedDB_addinfo({ "image_name": response[0] });
